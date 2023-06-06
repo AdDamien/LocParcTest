@@ -1,0 +1,8 @@
+
+t	java:S120"ZRename this package name to match the regular expression '^[a-z_]+(\.[a-z_][a-z0-9_]*)*$'.(˜àÔ“üÿÿÿÿ
+U
+java:S1854%":Remove this useless assignment to local variable "donnee".(ø¢¿Üıÿÿÿÿ
+F
+java:S1481%"+Remove this unused "donnee" local variable.(ø¢¿Üıÿÿÿÿ
+l
+java:S1128"VRemove this unused import 'org.springframework.security.core.userdetails.UserDetails'.(ÊÁ¥

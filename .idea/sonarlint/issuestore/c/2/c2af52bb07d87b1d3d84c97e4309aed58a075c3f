@@ -1,0 +1,6 @@
+
+{	java:S120"ZRename this package name to match the regular expression '^[a-z_]+(\.[a-z_][a-z0-9_]*)*$'.(İ„‡Èúÿÿÿÿ8§È§€1
+|	java:S116!"[Rename this field "date_acquisition" to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(šß»üÿÿÿÿ8”§È§€1
+v	java:S116#"[Rename this field "date_finGarantie" to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(‹ò8œ¹Ö§€1
+}	java:S116%"\Rename this field "date_debutEmprunt" to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(Ø¿Ïóûÿÿÿÿ8•§È§€1
+{	java:S116'"ZRename this field "date_finEmprunt" to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(‰Õì¸şÿÿÿÿ8İ¸È§€1

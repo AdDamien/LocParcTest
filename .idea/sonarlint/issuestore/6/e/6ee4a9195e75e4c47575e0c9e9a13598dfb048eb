@@ -1,0 +1,19 @@
+
+{
+java:S22931"YReplace the type specification in this constructor call with the diamond operator ("<>").(¸·È’úÿÿÿÿ8ƒ¸´Øş0
+{
+java:S2293m"YReplace the type specification in this constructor call with the diamond operator ("<>").(¸·È’úÿÿÿÿ8›¹Ã¤€1
+r	java:S117'"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(öÅ´Ãıÿÿÿÿ8„¸´Øş0
+Š
+java:S1488'"hImmediately return this expression instead of assigning it to the temporary variable "ListeUtilisateur".(öÅ´Ãıÿÿÿÿ8…¸´Øş0
+…
+java:S14889"cImmediately return this expression instead of assigning it to the temporary variable "utilisateur".(Óéñ¤úÿÿÿÿ8†¸´Øş0
+v	java:S120"ZRename this package name to match the regular expression '^[a-z_]+(\.[a-z_][a-z0-9_]*)*$'.(ÌÃ€8ˆ¸´Øş0
+«
+java:S4449D"ˆAnnotate the parameter with @javax.annotation.Nullable in constructor declaration, or make sure that null can not be passed as argument.(Å³œşÿÿÿÿ8ª¸´Øş0
+]
+java:S4684W"@Replace this persistent entity with a simple POJO or DTO object.(±ÚÜ8”ÃÃ¤€1
+X
+java:S6437u"6Revoke and change this password, as it is compromised.(ÓàØâûÿÿÿÿ8ŒÅÃ¤€1
+c
+java:S1128	"FRemove this unused import 'com.fasterxml.jackson.annotation.JsonView'.(Â„Ê¬8ıáƒ¬€1

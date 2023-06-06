@@ -1,0 +1,12 @@
+
+q
+java:S11920"ODefine a constant instead of duplicating this literal "ADMINISTRATEUR" 4 times.(°¼Üûÿÿÿÿ8æ¾¡Õ€1
+h
+java:S1192("LDefine a constant instead of duplicating this literal "UTILISATEUR" 3 times.(Ğ¿f8è¾¡Õ€1
+j
+java:S1192,"MDefine a constant instead of duplicating this literal "GESTIONNAIRE" 3 times.(²ÈúÁ8è¾¡Õ€1
+{	java:S120"ZRename this package name to match the regular expression '^[a-z_]+(\.[a-z_][a-z0-9_]*)*$'.(˜àÔ“üÿÿÿÿ8¿¹¯€1
+a
+java:S1874"DRemove this use of "WebSecurityConfigurerAdapter"; it is deprecated.(¯ú€8æ¿¡Õ€1
+\
+java:S11614":Add the "@Override" annotation above this method signature(•½ñßıÿÿÿÿ8‡À¡Õ€1
