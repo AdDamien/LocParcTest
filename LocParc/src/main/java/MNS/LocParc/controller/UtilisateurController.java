@@ -6,6 +6,7 @@ import MNS.LocParc.models.Role;
 import MNS.LocParc.models.Utilisateur;
 import MNS.LocParc.securite.JwtUtils;
 import MNS.LocParc.securite.MonUserDetails;
+import MNS.LocParc.services.EmailService;
 import MNS.LocParc.services.FichierService;
 import com.fasterxml.jackson.annotation.JsonView;
 import io.jsonwebtoken.Claims;
@@ -42,6 +43,8 @@ public class UtilisateurController {
     UtilisateurDao utilisateurDao;
     @Autowired
     FichierService fichierService;
+    @Autowired
+    EmailService emailService;
 
 
     @GetMapping("/utilisateur")
@@ -141,6 +144,8 @@ public class UtilisateurController {
         String passwordCrypter = passwordEncoder.encode(newPassword);
         //String passwordCrypter = passwordEncoder.encode("root");
         nouvelUtilisateur.setMotDePasse(passwordCrypter);
+
+        emailService.transmettrePassNewUtilisateur(nouvelUtilisateur.getEmail(),userPassword);
 
 
         if (fichier != null) {
