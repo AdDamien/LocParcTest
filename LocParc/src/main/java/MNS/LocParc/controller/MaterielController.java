@@ -105,6 +105,17 @@ public class MaterielController {
         return materielDao.findMaterielByReference(nomReference);
     }
 
+
+    @GetMapping("/materiel/{id}")
+    public ResponseEntity<Materiel> getMaterielById(@PathVariable int id) {
+
+        Optional<Materiel> optional = materielDao.findById(id); // s'il ne trouve rien il retournera cela.
+        if (optional.isPresent()) {
+            return new ResponseEntity<Materiel>(optional.get(), HttpStatus.OK);
+        }
+
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    }
     @DeleteMapping("/admin/materiel/{id}")
     public ResponseEntity<Materiel> supprimerMateriel(@PathVariable int id) {
 

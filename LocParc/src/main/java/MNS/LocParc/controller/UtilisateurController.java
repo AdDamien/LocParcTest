@@ -129,7 +129,7 @@ public class UtilisateurController {
         Role role = new Role();
         role.setId(3);
         nouvelUtilisateur.setRole(role);
-        String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789* /!@#$%^&";
+        String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789*/!@#$%^&";
         SecureRandom secureRandom = new SecureRandom();
         StringBuilder sb = new StringBuilder(10);
         for (int i = 0; i < 10; i++) {
