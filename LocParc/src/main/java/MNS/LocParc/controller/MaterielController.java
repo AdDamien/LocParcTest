@@ -73,6 +73,12 @@ public class MaterielController {
         return ListeMaterielDispoType;
     }
 
+
+    @GetMapping("/liste-bonmateriel")
+    public List<Materiel>getMaterielByBonEtat() {
+        List<Materiel> ListeBonMateriel = materielDao.findMaterielByBonEtat();
+        return ListeBonMateriel;
+    }
     @GetMapping("/liste-materiel")
     public List<Materiel>getMateriel() {
         List<Materiel> ListeMateriel = materielDao.findAll();

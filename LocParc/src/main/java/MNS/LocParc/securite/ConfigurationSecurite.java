@@ -50,7 +50,7 @@ public class ConfigurationSecurite extends WebSecurityConfigurerAdapter {
                 .csrf().disable()
                 .authorizeRequests()
 
-                .antMatchers("/connexion","/inscription","/utilisateur","/materiel","/login","/materiel-par-type/{nomType}","/pret-par-utilisateur","/liste-materiel-usertype","/materiel-par-etat/{nomEtat}","/materiel-par-modele/{nomModele}","/materiel-par-reference/{nomReference}","/image-profil/{idUtilisateur}","/liste-pret","/liste-etat","/materiel-count/{type}","/materiel-disponible","/materiel-count-disponible/{type}","/badmateriel","/pret-par-utilisateur/{id}","/liste-materiel","/liste-materiel-typer")
+                .antMatchers("/connexion","/inscription","/utilisateur","/materiel","/login","/materiel-par-type/{nomType}","/pret-par-utilisateur","/liste-materiel-usertype","/materiel-par-etat/{nomEtat}","/materiel-par-modele/{nomModele}","/materiel-par-reference/{nomReference}","/image-profil/{idUtilisateur}","/liste-pret","/liste-etat","/materiel-count/{type}","/materiel-disponible","/materiel-count-disponible/{type}","/badmateriel","/pret-par-utilisateur/{id}","/liste-materiel","/liste-materiel-typer","/liste-bonmateriel")
                 .permitAll()
                 .antMatchers("/admin/modifmateriel","/admin/**")
                 .hasAnyRole("ADMINISTRATEUR","GESTIONNAIRE")

@@ -54,11 +54,12 @@ public class EmailService {
 
     public void transmettrePassNewUtilisateur(String destinataire, String Pass) {
         String objet = "Votre mot de passe";
-        String message = "Voici votre mot de passe temporaire : " + Pass ;
+        String message = "Voici votre mot de passe temporaire : " + Pass +
+                "Ceci est un message automatique merci de ne pas répondre";
 
 
         SimpleMailMessage email = new SimpleMailMessage();
-        email.setFrom("noreply@locmnsmailservice.com");
+        email.setFrom("noreply@locmnsmailservice.com"); // test avec adresse fictive pour refuser les mails retour
         email.setTo(destinataire);
         email.setSubject(objet);
         email.setText(message);

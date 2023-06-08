@@ -39,6 +39,8 @@ public interface MaterielDao extends JpaRepository<Materiel,Integer>{
     @Query("SELECT M FROM Materiel M JOIN M.etat E JOIN M.statut S WHERE E.id BETWEEN 1 AND 3 AND S.nom = 'disponible'")
     List<Materiel> findByEtatAndStatut();
 
+    @Query("SELECT M FROM Materiel M JOIN M.etat E WHERE E.id <= 3")
+    List<Materiel> findMaterielByBonEtat();
     @Query("From Materiel M JOIN M.etat E WHERE E.nom= ?1")
     List<Materiel> findMaterielByEtat(String nomEtat);
 
