@@ -15,52 +15,59 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import javax.persistence.*;
 
-    @Entity
-    @Getter
-    @Setter
+@Entity
+@Getter
+@Setter
 @CrossOrigin
-    public class Utilisateur {
+public class Utilisateur {
 
-        @Id
-        @GeneratedValue(strategy = GenerationType.IDENTITY)
-        private Integer id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
 
-        @Column(length = 50, nullable = false)
-        private String prenom;
+    @Column(length = 50, nullable = false)
+    private String prenom;
 
-        @Column(length = 50, nullable = false)
-        private String nom;
+    @Column(length = 50, nullable = false)
+    private String nom;
 
-        @Column(length = 50, nullable = false)
-        private String email;
+    @Column(length = 50, nullable = false)
+    private String email;
 
-        @Column(length = 20, nullable = false)
-        private String telephone;
+    @Column(length = 20, nullable = false)
+    private String telephone;
 
-        private String motDePasse;
+    private String motDePasse;
 
-        private String nomImageProfil;
+    private String nomImageProfil;
 
-        @ManyToOne
-        private Role role;
+    @ManyToOne
+    private Role role;
 
-        @ManyToOne
-        private Pret pret;
+    @ManyToOne
+    private Pret pret;
 
-        @CreationTimestamp
+    @CreationTimestamp
+    private LocalDate dateCreation;
 
-        private LocalDate dateCreation;
+    @UpdateTimestamp
+    private LocalDateTime dateMiseAJour;
 
-        @UpdateTimestamp
+    @JsonView(VueUtilisateur.class)
+    @JsonIgnoreProperties("utilisateur")
+    @OneToMany(mappedBy = "utilisateur")
+    private List<Materiel> listeMateriel;
 
-        private LocalDateTime dateMiseAJour;
-
-
-        @JsonView(VueUtilisateur.class)
-        @JsonIgnoreProperties("utilisateur")
-        @OneToMany(mappedBy = "utilisateur")
-        private List<Materiel> listeMateriel;
+    public Utilisateur() {
 
     }
+
+    public Utilisateur(String prenom, String nom, String email, String telephone) {
+        this.prenom = prenom;
+        this.nom = nom;
+        this.email = email;
+        this.telephone = telephone;
+    }
+}
 
 

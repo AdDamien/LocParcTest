@@ -50,14 +50,14 @@ public class ConfigurationSecurite extends WebSecurityConfigurerAdapter {
                 .csrf().disable()
                 .authorizeRequests()
 
-                .antMatchers("/connexion","/inscription","/utilisateur","/materiel","/login","/materiel-par-type/{nomType}","/pret-par-utilisateur","/liste-materiel-usertype","/materiel-par-etat/{nomEtat}","/materiel-par-modele/{nomModele}","/materiel-par-reference/{nomReference}","/image-profil/{idUtilisateur}","/liste-pret","/liste-etat","/materiel-count/{type}","/materiel-disponible","/materiel-count-disponible/{type}","/badmateriel","/pret-par-utilisateur/{id}","/liste-materiel","/liste-materiel-typer","/liste-bonmateriel")
+                .antMatchers("/connexion","/inscription","/utilisateur","/materiel","/login","/materiel-par-type/{nomType}","/pret-par-utilisateur","/liste-materiel-usertype","/materiel-par-etat/{nomEtat}","/materiel-par-modele/{nomModele}","/materiel-par-reference/{nomReference}","/image-profil/{idUtilisateur}","/liste-pret","/liste-etat","/materiel-count/{type}","/materiel-disponible","/materiel-count-disponible/{type}","/badmateriel","/pret-par-utilisateur/{id}","/liste-materiel","/liste-materiel-typer","/liste-bonmateriel","/image-materiel/","/utilisateur/{id}","/import-utilisateurs")
                 .permitAll()
                 .antMatchers("/admin/modifmateriel","/admin/**")
                 .hasAnyRole("ADMINISTRATEUR","GESTIONNAIRE")
                 .antMatchers("/profil/**")
-                .hasAnyRole("ADMINISTRATEUR", "UTILISATEUR","GESTIONNAIRE")
+                .hasAnyRole("ADMINISTRATEUR","UTILISATEUR","GESTIONNAIRE")
                 .antMatchers("/**")
-                .hasAnyRole("ADMINISTRATEUR", "UTILISATEUR")
+                .hasAnyRole("ADMINISTRATEUR","UTILISATEUR","GESTIONNAIRE")
                 .anyRequest().authenticated()
                 .and().exceptionHandling()
                 .and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
