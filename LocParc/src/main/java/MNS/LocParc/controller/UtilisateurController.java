@@ -34,6 +34,8 @@ import java.io.*;
 import java.nio.file.Files;
 import java.security.SecureRandom;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @RestController
 @CrossOrigin
@@ -185,7 +187,6 @@ public class UtilisateurController {
             } catch (FileNotFoundException e) {
                 return new ResponseEntity<>(HttpStatus.NOT_FOUND);
             } catch (IOException e) {
-                System.out.println("Le test du mimeType a echoue");
                 return new ResponseEntity<>(HttpStatus.NOT_FOUND);
             }
         }
@@ -206,6 +207,9 @@ public class UtilisateurController {
             Sheet feuille = classeur.getSheetAt(0);
             List<Utilisateur> listeUtilisateurs = new ArrayList<>();
 
+            final String emailRegex = "(.+)@(.+)$";
+            Pattern pattern = Pattern.compile(emailRegex);
+
             Iterator<Row> iterator = feuille.iterator();
             while (iterator.hasNext()) {
                 Row ligne = iterator.next();
@@ -221,8 +225,12 @@ public class UtilisateurController {
                     String email = celluleEmail.getStringCellValue().trim();
                     String telephone = celluleTelephone.getStringCellValue().trim();
 
-                    Utilisateur nouvelUtilisateur = new Utilisateur(prenom, nom, email, telephone);
+                    Matcher matcher = pattern.matcher(email);
+                    if (!matcher.matches()) {
+                        return ResponseEntity.badRequest().build(); // E-mail invalide, erreur 400 Bad Request
+                    }
 
+                    Utilisateur nouvelUtilisateur = new Utilisateur(prenom, nom, email, telephone);
                     Role role = new Role();
                     role.setId(3);
                     nouvelUtilisateur.setRole(role);

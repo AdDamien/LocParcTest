@@ -61,9 +61,19 @@ class LocParcApplicationTests {
 	void administrateurAppelUrlListeUtilisateur_OKAttendu() throws Exception {
 		mvc.perform(get("/utilisateur")).andExpect(status().isOk());
 	}
-
+	@Test
+	@WithMockUser(roles = {"GESTIONNAIRE"})
+	void gestionnaireAppelUrlListeUtilisateur_OKAttendu() throws Exception {
+		mvc.perform(get("/utilisateur")).andExpect(status().isOk());
+	}
 
 	@Test
+	@WithMockUser(roles = {"ADMINISTRATEUR"})
+	void administrateurAppelUrlListeBonMateriel_OKAttendu() throws Exception {
+		mvc.perform(get("/liste-bonmateriel")).andExpect(status().isOk());
+	}
+	@Test
+	@WithMockUser(roles = {"ADMINISTRATEUR"})
 	void testImportUtilisateurs_ExtensionFichierInvalide() throws Exception {
 		// Créer un fichier fictif avec une extension invalide (test.jpg)
 		byte[] fichierInvalide = new byte[0];
@@ -82,6 +92,7 @@ class LocParcApplicationTests {
 	}
 
 	@Test
+	@WithMockUser(roles = {"ADMINISTRATEUR"})
 	void testLectureImportUtilisateurs() throws Exception {
 		// Créez un fichier de test en mémoire avec les données
 		Workbook classeur = new XSSFWorkbook();
@@ -138,6 +149,7 @@ class LocParcApplicationTests {
 	}
 
 	@Test
+	@WithMockUser(roles = {"ADMINISTRATEUR"})
 	void testVerificationEmailExistanteImportUtilisateurs() throws Exception {
 		// Créez un fichier de test en mémoire avec les données
 		Workbook classeur = new XSSFWorkbook();
@@ -179,6 +191,8 @@ class LocParcApplicationTests {
 
 
 	}
+
+
 }
 
 

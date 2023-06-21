@@ -49,7 +49,7 @@ public class PretController {
 
                 pretDao.save(pretToUpdate);
 
-                // si il y a une tentative d'insertion d'un pret avec un id qui n'existait pas
+
                 return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
             }
         }

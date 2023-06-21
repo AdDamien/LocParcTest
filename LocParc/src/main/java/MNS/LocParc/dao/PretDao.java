@@ -16,7 +16,6 @@ public interface PretDao extends JpaRepository<Pret,Integer> {
 
     Optional<Pret> findById(Integer id);
 
-
     @Query("SELECT p FROM Pret p JOIN FETCH p.materiel m JOIN FETCH p.utilisateur u WHERE u.id = :utilisateurId")
     List<Pret> findPretByUtilisateurId(@Param("utilisateurId") Integer utilisateurId);
 

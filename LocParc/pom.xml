@@ -161,7 +161,7 @@
 			<id>production</id>
 			<properties>
 				<skipUnitTest>true</skipUnitTest>
-				<adresse_serveur_bdd>A COMPLETER:3306</adresse_serveur_bdd>
+				<adresse_serveur_bdd>172.18.0.2:3306</adresse_serveur_bdd>
 				<nom_bdd>locparc_mns</nom_bdd>
 				<utilisateur_bdd>root</utilisateur_bdd>
 				<mot_de_passe_bdd>Info a definir dans le fichier settings.xml du serveur</mot_de_passe_bdd>
@@ -170,7 +170,7 @@
 				<initialisation_donnee_bdd>false</initialisation_donnee_bdd>
 				<mod_initialisation_donnee_bdd>never</mod_initialisation_donnee_bdd>
 				<nom_dossier_upload>/uploads</nom_dossier_upload>
-				<jwt_secret>Info a definir dans le fichier setting.xml du serveur</jwt_secret>
+				<jwt_secret>Info a definir dans le fichier settings.xml du serveur</jwt_secret>
 				<mail_host>smtp.gmail.com</mail_host>
 				<port_mail>587</port_mail>
 				<mail_username>locmnsmailservice@gmail.com</mail_username>

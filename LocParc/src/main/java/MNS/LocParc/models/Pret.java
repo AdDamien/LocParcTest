@@ -62,6 +62,7 @@ private Integer id;
     @PrePersist
     public void generateReference() {
         // Générer une référence de prêt
+
         String entreprise = "MNS"; // Entreprise fixe actuellement, vous pouvez la modifier selon vos besoins
         String codeNumerique = generateRandomNumericCode(8); // Générer un code numérique aléatoire de 8 chiffres
         String codeLettre = generateRandomLetterCode(); // Générer une lettre aléatoire
