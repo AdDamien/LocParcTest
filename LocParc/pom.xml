@@ -128,6 +128,63 @@
 		
 	</dependencies>
 
+	<profiles>
+		<profile>
+			<id>development</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<properties>
+				<skipUnitTest>false</skipUnitTest>
+				<adresse_serveur_bdd>localhost:3306</adresse_serveur_bdd>
+				<nom_bdd>locparc_mns</nom_bdd>
+				<utilisateur_bdd>root</utilisateur_bdd>
+				<mot_de_passe_bdd></mot_de_passe_bdd>
+				<creation_bdd_auto>create</creation_bdd_auto>
+				<nom_fichier_sql>mysql</nom_fichier_sql>
+				<initialisation_donnee_bdd>true</initialisation_donnee_bdd>
+				<mod_initialisation_donnee_bdd>always</mod_initialisation_donnee_bdd>
+				<nom_dossier_upload>A changer dans le dossier C:\Users\shado\.m2\settings.xml</nom_dossier_upload>
+				<jwt_secret>azerty</jwt_secret>
+				<mail_host>smtp.gmail.com</mail_host>
+				<port_mail>587</port_mail>
+				<mail_username>locmnsmailservice@gmail.com</mail_username>
+				<mail_password>cwdotkhtgdvsvksn</mail_password>
+				<mail_auth>true</mail_auth>
+				<mail_enable>true</mail_enable>
+				<mail_required>true</mail_required>
+				<multipart_maxsize>10MB</multipart_maxsize>
+				<multipart_maxrequest>10MB</multipart_maxrequest>
+			</properties>
+		</profile>
+		<profile>
+			<id>production</id>
+			<properties>
+				<skipUnitTest>true</skipUnitTest>
+				<adresse_serveur_bdd>A COMPLETER:3306</adresse_serveur_bdd>
+				<nom_bdd>locparc_mns</nom_bdd>
+				<utilisateur_bdd>root</utilisateur_bdd>
+				<mot_de_passe_bdd>Info a definir dans le fichier settings.xml du serveur</mot_de_passe_bdd>
+				<creation_bdd_auto>none</creation_bdd_auto>
+				<nom_fichier_sql></nom_fichier_sql>
+				<initialisation_donnee_bdd>false</initialisation_donnee_bdd>
+				<mod_initialisation_donnee_bdd>never</mod_initialisation_donnee_bdd>
+				<nom_dossier_upload>/uploads</nom_dossier_upload>
+				<jwt_secret>Info a definir dans le fichier setting.xml du serveur</jwt_secret>
+				<mail_host>smtp.gmail.com</mail_host>
+				<port_mail>587</port_mail>
+				<mail_username>locmnsmailservice@gmail.com</mail_username>
+				<mail_password>cwdotkhtgdvsvksn</mail_password>
+				<mail_auth>true</mail_auth>
+				<mail_enable>true</mail_enable>
+				<mail_required>true</mail_required>
+				<multipart_maxsize>10MB</multipart_maxsize>
+				<multipart_maxrequest>10MB</multipart_maxrequest>
+
+			</properties>
+		</profile>
+	</profiles>
+
 	<build>
 		<plugins>
 			<plugin>

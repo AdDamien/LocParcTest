@@ -38,7 +38,7 @@ import java.util.*;
 @RestController
 @CrossOrigin
 public class UtilisateurController {
-    
+
     @Autowired
     PasswordEncoder passwordEncoder;
     @Autowired
@@ -69,16 +69,18 @@ public class UtilisateurController {
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
-   @GetMapping("/utilisateur-phone")
+    @GetMapping("/utilisateur-phone")
     public Utilisateur getUtilisateurByPhone() {
         Utilisateur utilisateur = utilisateurDao.findByTelephone("0123456789");
         return utilisateur;
     }
+
     @GetMapping("/utilisateur-prenom")
     public Utilisateur getUtilisateurPrenom() {
         Utilisateur utilisateur = utilisateurDao.findByPrenom("Kevin");
         return utilisateur;
     }
+
     @DeleteMapping("/admin/utilisateur/{id}")
     public ResponseEntity<Utilisateur> supprimerUtilisateur(@PathVariable int id) {
 
@@ -92,11 +94,11 @@ public class UtilisateurController {
     }
 
     @GetMapping("/profil")
-    public ResponseEntity<Utilisateur> getProfil (@RequestHeader("Authorization") String bearer) {
+    public ResponseEntity<Utilisateur> getProfil(@RequestHeader("Authorization") String bearer) {
         String jwt = bearer.substring(7);
         Claims donnees = jwtUtils.getData(jwt);
         Optional<Utilisateur> utilisateur = utilisateurDao.findByEmail(donnees.getSubject());
-        
+
         if (utilisateur.isPresent()) {
             return new ResponseEntity<>(utilisateur.get(), HttpStatus.OK);
         }
@@ -151,7 +153,7 @@ public class UtilisateurController {
         //String passwordCrypter = passwordEncoder.encode("root");
         nouvelUtilisateur.setMotDePasse(passwordCrypter);
 
-        emailService.transmettrePassNewUtilisateur(nouvelUtilisateur.getEmail(),userPassword);
+        emailService.transmettrePassNewUtilisateur(nouvelUtilisateur.getEmail(), userPassword);
 
 
         if (fichier != null) {
@@ -191,45 +193,40 @@ public class UtilisateurController {
     }
 
     @PostMapping("/import-utilisateurs")
-    public List<Utilisateur> importerUtilisateurs
-            (@RequestParam("fichier") MultipartFile fichier) throws IOException {
-        List<Utilisateur> listeUtilisateurs = new ArrayList<>();
+    public ResponseEntity<List<Utilisateur>> importerUtilisateurs(@RequestParam("fichier") MultipartFile fichier) {
+        if (fichier.isEmpty()) {
+            return ResponseEntity.badRequest().build(); // Fichier manquant, erreur 400 Bad Request
+        }
 
-        // Vérifier si le fichier est un fichier ODS
-        if (!fichier.isEmpty() && fichier.getOriginalFilename().endsWith(".xlsx")) {
-            System.out.println("Le fichier est bon");
-            Workbook workbook = new XSSFWorkbook(fichier.getInputStream());
-            Sheet feuille = workbook.getSheetAt(0);
+        if (!fichier.getOriginalFilename().endsWith(".xlsx")) {
+            return ResponseEntity.badRequest().build(); // Extension de fichier incorrecte, erreur 400 Bad Request
+        }
 
-            // Parcourir les lignes de la feuille de calcul
+        try (Workbook classeur = new XSSFWorkbook(fichier.getInputStream())) {
+            Sheet feuille = classeur.getSheetAt(0);
+            List<Utilisateur> listeUtilisateurs = new ArrayList<>();
+
             Iterator<Row> iterator = feuille.iterator();
             while (iterator.hasNext()) {
                 Row ligne = iterator.next();
 
-                // Récupérer les valeurs des cellules
                 Cell cellulePrenom = ligne.getCell(0);
                 Cell celluleNom = ligne.getCell(1);
                 Cell celluleEmail = ligne.getCell(2);
                 Cell celluleTelephone = ligne.getCell(3);
 
-                // Vérifier si les cellules sont non vides
                 if (celluleNom != null && celluleEmail != null && cellulePrenom != null && celluleTelephone != null) {
-                    String prenom = cellulePrenom != null ? cellulePrenom.getStringCellValue().trim() : "";
+                    String prenom = cellulePrenom.getStringCellValue().trim();
                     String nom = celluleNom.getStringCellValue().trim();
                     String email = celluleEmail.getStringCellValue().trim();
-                    String telephone = celluleTelephone != null ? celluleTelephone.getStringCellValue().trim() : "";
+                    String telephone = celluleTelephone.getStringCellValue().trim();
 
-
-
-                    // Créer un nouvel utilisateur
                     Utilisateur nouvelUtilisateur = new Utilisateur(prenom, nom, email, telephone);
-                    System.out.println(nouvelUtilisateur.getPrenom() + ", " + nouvelUtilisateur.getNom() + ", " + nouvelUtilisateur.getEmail() + ", " + nouvelUtilisateur.getTelephone());
-
-                    //Assigner un role a l'utilisateur , générer son mot de passe et lui le transmettre par email
 
                     Role role = new Role();
                     role.setId(3);
                     nouvelUtilisateur.setRole(role);
+
                     String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789*/!@#$%^&";
                     SecureRandom secureRandom = new SecureRandom();
                     StringBuilder sb = new StringBuilder(10);
@@ -240,22 +237,23 @@ public class UtilisateurController {
                     String newPassword = sb.toString();
                     String userPassword = newPassword;
                     String passwordCrypter = passwordEncoder.encode(newPassword);
-                    //String passwordCrypter = passwordEncoder.encode("root");
                     nouvelUtilisateur.setMotDePasse(passwordCrypter);
 
-                    // emailService.transmettrePassNewUtilisateur(nouvelUtilisateur.getEmail(),userPassword);
-                    // Enregistrer l'utilisateur dans la base de données
-                    utilisateurDao.save(nouvelUtilisateur);
-                    // Ajouter l'utilisateur à la liste
-                    listeUtilisateurs.add(nouvelUtilisateur);
+                    Optional<Utilisateur> utilisateurExistant = utilisateurDao.findByEmail(email);
+                    if (utilisateurExistant.isPresent()) {
+                        return ResponseEntity.badRequest().build(); // Utilisateur existant, erreur 400 Bad Request
+                    } else {
+                        // emailService.transmettrePassNewUtilisateur(nouvelUtilisateur.getEmail(), userPassword);
+                        utilisateurDao.save(nouvelUtilisateur);
+                        listeUtilisateurs.add(nouvelUtilisateur);
+                    }
                 }
             }
 
-            workbook.close();
+            return ResponseEntity.ok(listeUtilisateurs);
+        } catch (IOException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build(); // Erreur lors de la lecture du fichier, erreur 500 Internal Server Error
         }
-
-        return listeUtilisateurs;
     }
-
 }
 
