@@ -155,7 +155,8 @@ public class UtilisateurController {
         //String passwordCrypter = passwordEncoder.encode("root");
         nouvelUtilisateur.setMotDePasse(passwordCrypter);
 
-        emailService.transmettrePassNewUtilisateur(nouvelUtilisateur.getEmail(), userPassword);
+        emailService.transmettrePassNewUtilisateur(nouvelUtilisateur.getEmail(), userPassword,nouvelUtilisateur.getNom(),nouvelUtilisateur.getPrenom());
+
 
 
         if (fichier != null) {
@@ -251,13 +252,12 @@ public class UtilisateurController {
                     if (utilisateurExistant.isPresent()) {
                         return ResponseEntity.badRequest().build(); // Utilisateur existant, erreur 400 Bad Request
                     } else {
-                        // emailService.transmettrePassNewUtilisateur(nouvelUtilisateur.getEmail(), userPassword);
+                        emailService.transmettrePassNewUtilisateur(nouvelUtilisateur.getEmail(), userPassword , nouvelUtilisateur.getNom() , nouvelUtilisateur.getPrenom());
                         utilisateurDao.save(nouvelUtilisateur);
                         listeUtilisateurs.add(nouvelUtilisateur);
                     }
                 }
             }
-
             return ResponseEntity.ok(listeUtilisateurs);
         } catch (IOException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build(); // Erreur lors de la lecture du fichier, erreur 500 Internal Server Error

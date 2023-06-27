@@ -1,5 +1,6 @@
 package MNS.LocParc;
 
+import MNS.LocParc.models.Pret;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -15,14 +16,18 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.ByteArrayOutputStream;
+import java.util.List;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
@@ -72,6 +77,23 @@ class LocParcApplicationTests {
 	void administrateurAppelUrlListeBonMateriel_OKAttendu() throws Exception {
 		mvc.perform(get("/liste-bonmateriel")).andExpect(status().isOk());
 	}
+
+	@Test
+	@WithMockUser(roles = {"ADMINISTRATEUR"})
+	void administrateurAppelUrlBadMateriel_OKAttendu() throws Exception {
+		mvc.perform(get("/badmateriel")).andExpect(status().isOk());
+	}
+	@Test
+	@WithMockUser(roles = {"GESTIONNAIRE"})
+	void gestionnaireAppelUrlBadMateriel_OKAttendu() throws Exception {
+		mvc.perform(get("/badmateriel")).andExpect(status().isOk());
+	}
+	@Test
+	@WithMockUser(roles = {"Utilisateur"})
+	void utilisateurAppelUrlBadMateriel_ForbiddenAttendu() throws Exception {
+		mvc.perform(get("/badmateriel")).andExpect(status().isForbidden());
+	}
+
 	@Test
 	@WithMockUser(roles = {"ADMINISTRATEUR"})
 	void testImportUtilisateurs_ExtensionFichierInvalide() throws Exception {
@@ -191,8 +213,6 @@ class LocParcApplicationTests {
 
 
 	}
-
-
 }
 
 

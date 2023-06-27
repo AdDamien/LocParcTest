@@ -50,19 +50,17 @@ public class ConfigurationSecurite extends WebSecurityConfigurerAdapter {
                 .csrf().disable()
                 .authorizeRequests()
 
-                .antMatchers("/connexion","/inscription","/login","/materiel-par-type/{nomType}","/pret-par-utilisateur","/liste-materiel-usertype","/materiel-par-etat/{nomEtat}","/materiel-par-modele/{nomModele}","/materiel-par-reference/{nomReference}","/image-profil/{idUtilisateur}","/liste-pret","/liste-etat","/materiel-count/{type}","/materiel-disponible","/materiel-count-disponible/{type}","/badmateriel","/pret-par-utilisateur/{id}","/liste-materiel","/liste-materiel-typer","/image-materiel/","/utilisateur/{id}")
+                .antMatchers("/connexion","/inscription","/login")
                 .permitAll()
-                .antMatchers("/profil/**","/utilisateur","/materiel")
+                .antMatchers("/profil/**","/utilisateur","/materiel","/materiel-par-type/{nomType}","/pret-par-utilisateur","/liste-materiel-usertype","/materiel-par-etat/{nomEtat}","/materiel-par-modele/{nomModele}","/materiel-par-reference/{nomReference}","/image-profil/{idUtilisateur}","/liste-pret","/liste-etat","/materiel-count/{type}","/materiel-disponible","/materiel-count-disponible/{type}","/liste-materiel","/liste-materiel-typer","/image-materiel/","/utilisateur/{id}")
                 .hasAnyRole("ADMINISTRATEUR","UTILISATEUR","GESTIONNAIRE")
-                .antMatchers("/**","/import-utilisateurs","/liste-bonmateriel","/admin/**")
+                .antMatchers("/**","/import-utilisateurs","/liste-bonmateriel","/admin/**","/admin/pret-par-utilisateur/{id}","/badmateriel")
                 .hasAnyRole("ADMINISTRATEUR","GESTIONNAIRE")
                 .anyRequest().authenticated()
                 .and().exceptionHandling()
                 .and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 
         http.addFilterBefore(filtre, UsernamePasswordAuthenticationFilter.class);
-
-
     }
     @Bean
     public PasswordEncoder creerMdpEncoder () {

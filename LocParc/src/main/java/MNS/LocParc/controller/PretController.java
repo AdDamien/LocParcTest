@@ -28,7 +28,7 @@ public class PretController {
         return ListePret;
     }
 
-    @GetMapping("/pret-par-utilisateur/{id}")
+    @GetMapping("/admin/pret-par-utilisateur/{id}")
     public List<Pret> getPretByUtilisateurId(@PathVariable int id) {
         return pretDao.findPretByUtilisateurId(id);
     }
@@ -37,9 +37,8 @@ public class PretController {
     public ResponseEntity<Pret> modifPret(
             @RequestPart("materiel") Pret nouveauPret,
             @Nullable @RequestParam("fichier") MultipartFile fichier) {
-        // si le prêt possède un id
         if (nouveauPret.getId() != null) {
-            Optional<Pret> optional = pretDao.findById(nouveauPret.getId()); // s'il ne trouve rien il retournera cela.
+            Optional<Pret> optional = pretDao.findById(nouveauPret.getId());
             if (optional.isPresent()) {
 
                 Pret pretToUpdate = optional.get();
