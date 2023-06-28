@@ -64,7 +64,7 @@ public class EmailService {
     public void transmettrePassNewUtilisateur(String destinataire, String pass , String contactNom , String contactPrenom) {
         String objet = "BIENVENUE CHEZ LOCMNS";
 
-        String message = "Bonjour " + contactNom + " " + contactPrenom + "\n\n"
+        String message = "Bonjour " + contactNom + " " + contactPrenom + ",\n\n"
                 + "Nous vous remercions pour votre adhésion à l'application LOCMNS.\n\n"
                 + "Voici votre mot de passe actuel : " + pass + "\n\n"
                 + "Afin de garantir la sécurité de votre compte, nous vous invitons à créer un mot de passe robuste et complexe. Nous vous conseillons d'utiliser une combinaison de lettres, de chiffres et de caractères spéciaux pour renforcer la sécurité de votre compte.\n\n"

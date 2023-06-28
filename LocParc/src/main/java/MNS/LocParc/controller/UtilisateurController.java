@@ -34,6 +34,8 @@ import java.io.*;
 import java.nio.file.Files;
 import java.security.SecureRandom;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -51,6 +53,11 @@ public class UtilisateurController {
     FichierService fichierService;
     @Autowired
     EmailService emailService;
+
+    private int compteurUtilisateurImporter;
+
+    // Utilisitation d'un completable future pour que l'importation soit terminé avant de récup le compteur
+    private CompletableFuture<Integer> compteurPostImportation;
 
 
     @GetMapping("/utilisateur")
@@ -210,8 +217,8 @@ public class UtilisateurController {
 
             final String emailRegex = "(.+)@(.+)$";
             Pattern pattern = Pattern.compile(emailRegex);
-
             Iterator<Row> iterator = feuille.iterator();
+            int compteur = 0;
             while (iterator.hasNext()) {
                 Row ligne = iterator.next();
 
@@ -252,16 +259,39 @@ public class UtilisateurController {
                     if (utilisateurExistant.isPresent()) {
                         return ResponseEntity.badRequest().build(); // Utilisateur existant, erreur 400 Bad Request
                     } else {
-                        emailService.transmettrePassNewUtilisateur(nouvelUtilisateur.getEmail(), userPassword , nouvelUtilisateur.getNom() , nouvelUtilisateur.getPrenom());
+                        //emailService.transmettrePassNewUtilisateur(nouvelUtilisateur.getEmail(), userPassword , nouvelUtilisateur.getNom() , nouvelUtilisateur.getPrenom());
                         utilisateurDao.save(nouvelUtilisateur);
+                        compteur++;
                         listeUtilisateurs.add(nouvelUtilisateur);
                     }
                 }
             }
+            compteurUtilisateurImporter = compteur;
+
+            // Créer un nouveau CompletableFuture avec la valeur mise à jour du compteur
+            compteurPostImportation = CompletableFuture.completedFuture(compteurUtilisateurImporter);
+
             return ResponseEntity.ok(listeUtilisateurs);
         } catch (IOException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build(); // Erreur lors de la lecture du fichier, erreur 500 Internal Server Error
         }
     }
+
+    @GetMapping("/compteur-import-utilisateur")
+    public ResponseEntity<Integer> getCompteurUtilisateurImporter() {
+        if (compteurPostImportation != null && compteurPostImportation.isDone()) {
+            try {
+                // Récupérer la valeur du compteur à partir du CompletableFuture
+                Integer compteurUtilisateurImporterFinale = compteurPostImportation.get();
+                return ResponseEntity.ok(compteurUtilisateurImporterFinale);
+            } catch (InterruptedException | ExecutionException e) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            }
+        } else {
+            // Le traitement de l'import n'est pas encore terminé, renvoyer une valeur par défaut ou une indication appropriée
+            return ResponseEntity.ok(0); // Ou toute autre valeur par défaut que vous souhaitez utiliser
+        }
+    }
+
 }
 
