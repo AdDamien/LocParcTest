@@ -288,8 +288,8 @@ public class UtilisateurController {
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
             }
         } else {
-            // Le traitement de l'import n'est pas encore terminé, renvoyer une valeur par défaut ou une indication appropriée
-            return ResponseEntity.ok(0); // Ou toute autre valeur par défaut que vous souhaitez utiliser
+            // Le traitement de l'import n'est pas encore terminé, renvoyer une valeur par défaut
+            return ResponseEntity.ok(0);
         }
     }
 

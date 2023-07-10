@@ -37,12 +37,10 @@ private Integer id;
     @Transient
     private int prixAchat;
 
-    @Transient
+
     private LocalDate date_acquisition;
 
-    @Transient
     private LocalDate date_finGarantie;
-
 
     private LocalDateTime date_debutEmprunt;
 
@@ -69,5 +67,17 @@ private Integer id;
     @ManyToOne
     @JoinColumn(name = "statut_id")
     private Statut statut;
+
+    public Materiel() {
+
+    }
+
+    public Materiel(String modele, String marque, String reference, LocalDate date_acquisition, LocalDate date_finGarantie) {
+        this.modele = modele;
+        this.marque = marque;
+        this.reference = reference;
+        this.date_acquisition = date_acquisition;
+        this.date_finGarantie = date_finGarantie;
+    }
 
 }

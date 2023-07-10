@@ -4,9 +4,12 @@ import MNS.LocParc.dao.MaterielDao;
 import MNS.LocParc.dao.StatutDao;
 import MNS.LocParc.dao.TypeDao;
 import MNS.LocParc.models.Materiel;
+import MNS.LocParc.models.Role;
 import MNS.LocParc.models.Type;
 import MNS.LocParc.models.Utilisateur;
 import MNS.LocParc.services.FichierService;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -20,7 +23,13 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.security.SecureRandom;
+import java.time.LocalDate;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @RestController
 @CrossOrigin
@@ -38,6 +47,12 @@ public class MaterielController {
 
     @Autowired
     StatutDao statutDao;
+
+    private int compteurMaterielImporter;
+
+    private CompletableFuture<Integer> compteurPostImportationMateriel;
+
+
 
 
 
@@ -196,5 +211,203 @@ public class MaterielController {
             }
         }
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    }
+/*
+    @PostMapping("/import-materiels")
+    public ResponseEntity<List<Materiel>> importerMateriels(@RequestParam("fichier") MultipartFile fichier) {
+        if (fichier.isEmpty()) {
+            return ResponseEntity.badRequest().build(); // Fichier manquant, erreur 400 Bad Request
+        }
+        System.out.println("Je suis ici");
+        if (!fichier.getOriginalFilename().endsWith(".xlsx")) {
+            return ResponseEntity.badRequest().build(); // Extension de fichier incorrecte, erreur 400 Bad Request
+        }
+        System.out.println("J'ouvre le fichier et le parcours");
+        try (Workbook classeur = new XSSFWorkbook(fichier.getInputStream())) {
+            Sheet feuille = classeur.getSheetAt(0);
+            List<Materiel> listeMateriel = new ArrayList<>();
+
+            Iterator<Row> iterator = feuille.iterator();
+            int compteurMateriel = 0;
+            String referencePrecedente = null;
+            while (iterator.hasNext()) {
+                Row ligne = iterator.next();
+
+                Cell celluleMarque = ligne.getCell(0);
+                Cell celluleModele = ligne.getCell(1);
+                Cell celluleReference = ligne.getCell(2);
+                Cell celluleDateAcquisition = ligne.getCell(3);
+                Cell celluleDateFinGarantie = ligne.getCell(4);
+
+                if (celluleMarque != null && celluleModele != null && celluleReference != null) {
+                    String marque = celluleMarque.getStringCellValue().trim();
+                    String modele = celluleModele.getStringCellValue().trim();
+                    String reference = celluleReference.getStringCellValue().trim();
+                    LocalDate dateAcquisition = null;
+                    LocalDate dateFinGarantie = null;
+
+                    if (celluleDateAcquisition != null && celluleDateAcquisition.getCellType() == CellType.NUMERIC) {
+                        dateAcquisition = celluleDateAcquisition.getLocalDateTimeCellValue().toLocalDate();
+                    }
+
+                    if (celluleDateFinGarantie != null && celluleDateFinGarantie.getCellType() == CellType.NUMERIC) {
+                        dateFinGarantie = celluleDateFinGarantie.getLocalDateTimeCellValue().toLocalDate();
+                    }
+
+                    if (referencePrecedente != null && !referencePrecedente.equals(reference)) {
+                        return ResponseEntity.badRequest().build(); // Références différentes, erreur 400 Bad Request
+                    }
+                    referencePrecedente = reference;
+
+                    // Vérifier si la référence existe déjà dans la base de données
+                    List<Materiel> materielExistant = materielDao.findMaterielByReference(reference);
+                    if (materielExistant != null) {
+                        return ResponseEntity.badRequest().build(); // Référence existante, erreur 400 Bad Request
+                    }
+
+                    Materiel nouveauMateriel = new Materiel(marque, modele, reference, dateAcquisition, dateFinGarantie);
+                    System.out.println(nouveauMateriel);
+                    listeMateriel.add(nouveauMateriel);
+
+
+                    compteurMateriel++;
+                }
+            }
+            compteurMaterielImporter = compteurMateriel;
+
+            // Créer un nouveau CompletableFuture avec la valeur mise à jour du compteur
+            compteurPostImportationMateriel = CompletableFuture.completedFuture(compteurMaterielImporter);
+
+            return ResponseEntity.ok(listeMateriel);
+        } catch (IOException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build(); // Erreur lors de la lecture du fichier, erreur 500 Internal Server Error
+        }
+    }
+*/
+    @PostMapping("/import-materiels")
+    public ResponseEntity<List<Materiel>> importerMateriels(@RequestParam("fichier") MultipartFile fichier) {
+        if (fichier.isEmpty()) {
+            return ResponseEntity.badRequest().build(); // Fichier manquant, erreur 400 Bad Request
+        }
+
+        if (!fichier.getOriginalFilename().endsWith(".xlsx")) {
+            return ResponseEntity.badRequest().build(); // Extension de fichier incorrecte, erreur 400 Bad Request
+        }
+        System.out.println("Je vais traiter le fichier");
+        try (Workbook classeur = new XSSFWorkbook(fichier.getInputStream())) {
+            Sheet feuille = classeur.getSheetAt(0);
+            List<Materiel> listeMateriel = new ArrayList<>();
+
+            Iterator<Row> iterator = feuille.iterator();
+            int compteurMateriel = 0;
+            String referencePrecedente = null;
+
+            // Vérifier si la première ligne contient les en-têtes des colonnes
+            Row premiereLigne = iterator.next();
+            boolean premiereLigneEnTetes = false;
+
+            Cell celluleMarqueEnTete = premiereLigne.getCell(0);
+            Cell celluleModeleEnTete = premiereLigne.getCell(1);
+            Cell celluleReferenceEnTete = premiereLigne.getCell(2);
+            Cell celluleDateAcquisitionEnTete = premiereLigne.getCell(3);
+            Cell celluleDateFinGarantieEnTete = premiereLigne.getCell(4);
+
+            System.out.println(" a "+celluleMarqueEnTete+" b "+celluleModeleEnTete+" c "+celluleReferenceEnTete+" d "+celluleDateAcquisitionEnTete+" e "+celluleDateFinGarantieEnTete);
+
+            if (celluleMarqueEnTete != null && celluleModeleEnTete != null && celluleReferenceEnTete != null &&
+                    celluleMarqueEnTete.getStringCellValue().equalsIgnoreCase("Marque") &&
+                    celluleModeleEnTete.getStringCellValue().equalsIgnoreCase("Modèle") &&
+                    celluleReferenceEnTete.getStringCellValue().equalsIgnoreCase("Référence")) {
+                premiereLigneEnTetes = true;
+            }
+
+            while (iterator.hasNext()) {
+                Row ligne = iterator.next();
+
+                // Ignorer la première ligne si elle contient les en-têtes des colonnes
+                if (premiereLigneEnTetes && ligne.getRowNum() == 1) {
+                    continue;
+                }
+
+                Cell celluleMarque = ligne.getCell(0);
+                Cell celluleModele = ligne.getCell(1);
+                Cell celluleReference = ligne.getCell(2);
+                Cell celluleDateAcquisition = ligne.getCell(3);
+                Cell celluleDateFinGarantie = ligne.getCell(4);
+
+                System.out.println(" a "+celluleMarque+" b "+celluleModele+" c "+celluleReference+" d "+celluleDateAcquisition+" e "+celluleDateFinGarantie);
+
+                if (celluleMarque != null && celluleReference != null) {
+                    String marque = celluleMarque.getStringCellValue().trim();
+                    String modele = null;
+                    if (celluleModele != null) {
+                        if (celluleModele.getCellType() == CellType.STRING) {
+                            modele = celluleModele.getStringCellValue().trim();
+                        } else if (celluleModele.getCellType() == CellType.NUMERIC) {
+                            double numericValue = celluleModele.getNumericCellValue();
+                            modele = String.valueOf((int) numericValue);
+                        }
+
+                        System.out.println(celluleModele.getCellType());
+                    }
+                    String reference = celluleReference.getStringCellValue().trim();
+                    LocalDate dateAcquisition = null;
+                    LocalDate dateFinGarantie = null;
+
+                    if (celluleDateAcquisition != null && celluleDateAcquisition.getCellType() == CellType.NUMERIC) {
+                        dateAcquisition = celluleDateAcquisition.getLocalDateTimeCellValue().toLocalDate();
+                    }
+
+                    if (celluleDateFinGarantie != null && celluleDateFinGarantie.getCellType() == CellType.NUMERIC) {
+                        dateFinGarantie = celluleDateFinGarantie.getLocalDateTimeCellValue().toLocalDate();
+                    }
+
+                    if (referencePrecedente != null && !referencePrecedente.equals(reference)) {
+                        return ResponseEntity.badRequest().build(); // Références différentes, erreur 400 Bad Request
+                    }
+                    referencePrecedente = reference;
+
+                    // Vérifier si la référence existe déjà dans la base de données
+                    List<Materiel> materielExistant = materielDao.findMaterielByReference(reference);
+                    if (materielExistant != null) {
+                        return ResponseEntity.badRequest().build(); // Référence existante, erreur 400 Bad Request
+                    }
+
+                    Materiel nouveauMateriel = new Materiel(marque, modele, reference, dateAcquisition, dateFinGarantie);
+                    System.out.println("a"+ marque+"b"+modele+"c"+reference+"d"+dateAcquisition+"e"+dateFinGarantie);
+                    listeMateriel.add(nouveauMateriel);
+
+                    compteurMateriel++;
+                }
+            }
+
+            compteurMaterielImporter = compteurMateriel;
+
+            // Créer un nouveau CompletableFuture avec la valeur mise à jour du compteur
+            compteurPostImportationMateriel = CompletableFuture.completedFuture(compteurMaterielImporter);
+
+            return ResponseEntity.ok(listeMateriel);
+        } catch (IOException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build(); // Erreur lors de la lecture du fichier, erreur 500 Internal Server Error
+        }
+    }
+
+
+
+
+    @GetMapping("/compteur-import-materiel")
+    public ResponseEntity<Integer> getCompteurUtilisateurImporter() {
+        if (compteurPostImportationMateriel != null && compteurPostImportationMateriel.isDone()) {
+            try {
+                // Récupérer la valeur du compteur à partir du CompletableFuture
+                Integer compteurMaterielImporterFinale = compteurPostImportationMateriel.get();
+                return ResponseEntity.ok(compteurMaterielImporterFinale);
+            } catch (InterruptedException | ExecutionException e) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            }
+        } else {
+            // Le traitement de l'import n'est pas encore terminé, renvoyer une valeur par défaut
+            return ResponseEntity.ok(0);
+        }
     }
 }

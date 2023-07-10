@@ -69,10 +69,10 @@ private Integer id;
         this.reference_pret = "P" + entreprise + codeNumerique + codeLettre;
     }
 
-    private String generateRandomNumericCode(int length) {
+    private String generateRandomNumericCode(int nombreCaractere) {
         Random random = new Random();
-        StringBuilder sb = new StringBuilder(length);
-        for (int i = 0; i < length; i++) {
+        StringBuilder sb = new StringBuilder(nombreCaractere);
+        for (int i = 0; i < nombreCaractere; i++) {
             sb.append(random.nextInt(10));
         }
         return sb.toString();

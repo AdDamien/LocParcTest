@@ -149,12 +149,11 @@
 				<mail_host>smtp.gmail.com</mail_host>
 				<port_mail>587</port_mail>
 				<mail_username>locmnsmailservice@gmail.com</mail_username>
-				<mail_password>cwdotkhtgdvsvksn</mail_password>
+				<mail_password>kagijflkqcuuaipv</mail_password>
 				<mail_auth>true</mail_auth>
 				<mail_enable>true</mail_enable>
 				<mail_required>true</mail_required>
-				<multipart_maxsize>10MB</multipart_maxsize>
-				<multipart_maxrequest>10MB</multipart_maxrequest>
+
 			</properties>
 		</profile>
 		<profile>
@@ -174,12 +173,11 @@
 				<mail_host>smtp.gmail.com</mail_host>
 				<port_mail>587</port_mail>
 				<mail_username>locmnsmailservice@gmail.com</mail_username>
-				<mail_password>cwdotkhtgdvsvksn</mail_password>
+				<mail_password>kagijflkqcuuaipv</mail_password>
 				<mail_auth>true</mail_auth>
 				<mail_enable>true</mail_enable>
 				<mail_required>true</mail_required>
-				<multipart_maxsize>10MB</multipart_maxsize>
-				<multipart_maxrequest>10MB</multipart_maxrequest>
+
 
 			</properties>
 		</profile>

@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.lang.ref.Reference;
 import java.util.List;
 import java.util.Optional;
 
@@ -15,6 +16,7 @@ import java.util.Optional;
 public interface MaterielDao extends JpaRepository<Materiel,Integer>{
 
     Optional<Materiel> findById(Integer integer);
+
 
     @Query("SELECT COUNT(m) FROM Materiel m")
     @JsonProperty("quantiteMaterielTotal")
