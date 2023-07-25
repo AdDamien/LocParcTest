@@ -1,18 +1,12 @@
 package MNS.LocParc.controller;
 
-import org.apache.commons.io.FilenameUtils;
-import com.github.miachm.sods.*;
-
 import MNS.LocParc.dao.UtilisateurDao;
 import MNS.LocParc.models.Role;
 import MNS.LocParc.models.Utilisateur;
 import MNS.LocParc.securite.JwtUtils;
-import MNS.LocParc.securite.MonUserDetails;
 import MNS.LocParc.services.EmailService;
 import MNS.LocParc.services.FichierService;
-import com.fasterxml.jackson.annotation.JsonView;
 import io.jsonwebtoken.Claims;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -24,8 +18,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.Nullable;
-import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -56,8 +48,19 @@ public class UtilisateurController {
 
     private int compteurUtilisateurImporter;
 
+    private int compteurUtilisateurDejaPresent;
+
+
     // Utilisitation d'un completable future pour que l'importation soit terminé avant de récup le compteur
     private CompletableFuture<Integer> compteurPostImportation;
+
+    private CompletableFuture<Integer> compteurPostImportationDejaPresent;
+
+    private List<Utilisateur> listeUtilisateurDejaPresent;
+
+    private List<Utilisateur> listeUtilisateurImporter;
+    private CompletableFuture<List<Utilisateur>> listeUtilisateurPostImportation;
+    private CompletableFuture<List<Utilisateur>> listeUtilisateurNotImported;
 
 
     @GetMapping("/utilisateur")
@@ -130,8 +133,6 @@ public class UtilisateurController {
                 userToUpdate.setPrenom(nouvelUtilisateur.getPrenom());
                 userToUpdate.setEmail(nouvelUtilisateur.getEmail());
                 userToUpdate.setTelephone(nouvelUtilisateur.getTelephone());
-                userToUpdate.setListeMateriel(nouvelUtilisateur.getListeMateriel());
-
 
                 utilisateurDao.save(userToUpdate);
                 if (fichier != null) {
@@ -146,9 +147,11 @@ public class UtilisateurController {
             // si il y a une tentative d'insertion d'un utilisateur avec un id qui n'existait pas
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
+
         Role role = new Role();
         role.setId(3);
         nouvelUtilisateur.setRole(role);
+
         String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789*/!@#$%^&";
         SecureRandom secureRandom = new SecureRandom();
         StringBuilder sb = new StringBuilder(10);
@@ -159,11 +162,9 @@ public class UtilisateurController {
         String newPassword = sb.toString();
         String userPassword = newPassword;
         String passwordCrypter = passwordEncoder.encode(newPassword);
-        //String passwordCrypter = passwordEncoder.encode("root");
         nouvelUtilisateur.setMotDePasse(passwordCrypter);
 
-        emailService.transmettrePassNewUtilisateur(nouvelUtilisateur.getEmail(), userPassword,nouvelUtilisateur.getNom(),nouvelUtilisateur.getPrenom());
-
+        emailService.transmettrePassNewUtilisateur(nouvelUtilisateur.getEmail(), userPassword, nouvelUtilisateur.getNom(), nouvelUtilisateur.getPrenom());
 
 
         if (fichier != null) {
@@ -204,11 +205,10 @@ public class UtilisateurController {
     @PostMapping("/import-utilisateurs")
     public ResponseEntity<List<Utilisateur>> importerUtilisateurs(@RequestParam("fichier") MultipartFile fichier) {
         if (fichier.isEmpty()) {
-            return ResponseEntity.badRequest().build(); // Fichier manquant, erreur 400 Bad Request
+            return ResponseEntity.badRequest().build();
         }
-
         if (!fichier.getOriginalFilename().endsWith(".xlsx")) {
-            return ResponseEntity.badRequest().build(); // Extension de fichier incorrecte, erreur 400 Bad Request
+            return ResponseEntity.badRequest().build();
         }
 
         try (Workbook classeur = new XSSFWorkbook(fichier.getInputStream())) {
@@ -219,6 +219,26 @@ public class UtilisateurController {
             Pattern pattern = Pattern.compile(emailRegex);
             Iterator<Row> iterator = feuille.iterator();
             int compteur = 0;
+            int compteurExistant = 0;
+            List<Utilisateur> listeUtilisateurPresent = new ArrayList<>();
+
+            // Vérifier si la première ligne contient les en-têtes des colonnes
+            Row premiereLigne = iterator.next();
+            boolean premiereLigneEnTetes = false;
+
+            Cell cellulePrenomEnTete = premiereLigne.getCell(0);
+            Cell celluleNomEnTete = premiereLigne.getCell(1);
+            Cell celluleEmailEnTete = premiereLigne.getCell(2);
+            Cell celluleTelephoneEnTete = premiereLigne.getCell(3);
+
+            if (cellulePrenomEnTete != null && celluleNomEnTete != null && celluleEmailEnTete != null && celluleTelephoneEnTete != null &&
+                    cellulePrenomEnTete.getStringCellValue().equalsIgnoreCase("Prenom") &&
+                    celluleNomEnTete.getStringCellValue().equalsIgnoreCase("Nom") &&
+                    celluleEmailEnTete.getStringCellValue().equalsIgnoreCase("Email") &&
+                    celluleTelephoneEnTete.getStringCellValue().equalsIgnoreCase("Telephone")) {
+                premiereLigneEnTetes = true;
+            }
+
             while (iterator.hasNext()) {
                 Row ligne = iterator.next();
 
@@ -255,11 +275,16 @@ public class UtilisateurController {
                     String passwordCrypter = passwordEncoder.encode(newPassword);
                     nouvelUtilisateur.setMotDePasse(passwordCrypter);
 
+
                     Optional<Utilisateur> utilisateurExistant = utilisateurDao.findByEmail(email);
+
                     if (utilisateurExistant.isPresent()) {
-                        return ResponseEntity.badRequest().build(); // Utilisateur existant, erreur 400 Bad Request
+                        compteurExistant++;
+                        Utilisateur utilisateur = new Utilisateur(utilisateurExistant.get().getPrenom(),utilisateurExistant.get().getNom(), utilisateurExistant.get().getEmail(),utilisateurExistant.get().getTelephone());
+                        listeUtilisateurPresent.add(utilisateur);
+
                     } else {
-                        //emailService.transmettrePassNewUtilisateur(nouvelUtilisateur.getEmail(), userPassword , nouvelUtilisateur.getNom() , nouvelUtilisateur.getPrenom());
+                        emailService.transmettrePassNewUtilisateur(nouvelUtilisateur.getEmail(), userPassword , nouvelUtilisateur.getNom() , nouvelUtilisateur.getPrenom());
                         utilisateurDao.save(nouvelUtilisateur);
                         compteur++;
                         listeUtilisateurs.add(nouvelUtilisateur);
@@ -267,9 +292,19 @@ public class UtilisateurController {
                 }
             }
             compteurUtilisateurImporter = compteur;
+            compteurUtilisateurDejaPresent = compteurExistant;
 
-            // Créer un nouveau CompletableFuture avec la valeur mise à jour du compteur
+
+            listeUtilisateurImporter = listeUtilisateurs;
+            listeUtilisateurDejaPresent = listeUtilisateurPresent;
+
+            // Créer un nouveau CompletableFuture pour mettre a jour les compteurs une fois le traitement fini
             compteurPostImportation = CompletableFuture.completedFuture(compteurUtilisateurImporter);
+            compteurPostImportationDejaPresent = CompletableFuture.completedFuture(compteurUtilisateurDejaPresent);
+
+            // Mettre a jour les listes avec le CompletableFuture une fois le traitement fini
+            listeUtilisateurPostImportation = CompletableFuture.completedFuture(listeUtilisateurImporter);
+            listeUtilisateurNotImported = CompletableFuture.completedFuture(listeUtilisateurDejaPresent);
 
             return ResponseEntity.ok(listeUtilisateurs);
         } catch (IOException e) {
@@ -293,5 +328,52 @@ public class UtilisateurController {
         }
     }
 
+    @GetMapping("/compteur-utilisateurexistant")
+    public ResponseEntity<Integer> getCompteurUtilisateurDejaPresent() {
+        if (compteurPostImportationDejaPresent != null && compteurPostImportationDejaPresent.isDone()) {
+            try {
+                // Récupérer la valeur du compteur à partir du CompletableFuture
+                Integer compteurUtilisateurNonImporterFinale = compteurPostImportationDejaPresent.get();
+                return ResponseEntity.ok(compteurUtilisateurNonImporterFinale);
+            } catch (InterruptedException | ExecutionException e) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            }
+        } else {
+            // Le traitement de l'import n'est pas encore terminé, renvoyer une valeur par défaut
+            return ResponseEntity.ok(0);
+        }
+    }
+
+    @GetMapping("/liste-utilisateur-importe")
+    public ResponseEntity<List<Utilisateur>> getListeUtilisateurImporter() {
+        if (listeUtilisateurPostImportation != null && listeUtilisateurPostImportation.isDone()) {
+            try {
+                // Récupérer la valeur de la liste d'utilisateurs importés à partir du CompletableFuture
+                List<Utilisateur> listeUtilisateurImporterFinale = listeUtilisateurPostImportation.get();
+                return ResponseEntity.ok(listeUtilisateurImporterFinale);
+            } catch (InterruptedException | ExecutionException e) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            }
+        } else {
+            // Le traitement de l'import n'est pas encore terminé, renvoyer une valeur par défaut (par exemple, une liste vide)
+            return ResponseEntity.ok(new ArrayList<>());
+        }
+    }
+
+    @GetMapping("/liste-utilisateur-nonimporte")
+    public ResponseEntity<List<Utilisateur>> getListeNonImporte() {
+        if (listeUtilisateurNotImported != null && listeUtilisateurNotImported.isDone()) {
+            try {
+                // Récupérer la valeur de la liste d'utilisateurs non importés à partir du CompletableFuture
+                List<Utilisateur> listeUtilisateurNonImporteFinale = listeUtilisateurNotImported.get();
+                return ResponseEntity.ok(listeUtilisateurNonImporteFinale);
+            } catch (InterruptedException | ExecutionException e) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            }
+        } else {
+            // Le traitement de l'import n'est pas encore terminé en attendant je mets une liste vide par default)
+            return ResponseEntity.ok(new ArrayList<>());
+        }
+    }
 }
 

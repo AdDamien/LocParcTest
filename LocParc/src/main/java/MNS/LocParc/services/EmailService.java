@@ -75,7 +75,6 @@ public class EmailService {
                 + "L'équipe LOCMNS";
 
         SimpleMailMessage email = new SimpleMailMessage();
-        // adresse no reply pour eviter les réponse.
         email.setFrom("no-reply@locmnsservice.com");
         email.setTo(destinataire);
         email.setSubject(objet);
