@@ -49,6 +49,7 @@ class LocParcApplicationTests {
 	private WebApplicationContext context;
 
 	private MockMvc mvc;
+
 	@Autowired
 	private PasswordEncoder passwordEncoder;
 
@@ -103,14 +104,12 @@ class LocParcApplicationTests {
 
 	@Test
 	public void testConnexionEchouee_BadCredentials() throws Exception {
-		// Définir le comportement attendu du mock authenticationManager pour un échec d'authentification (Bad Credentials)
 		when(authenticationManager.authenticate(Mockito.any(UsernamePasswordAuthenticationToken.class)))
 				.thenThrow(new BadCredentialsException("Identifiants invalides"));
-
 		// Envoyer une requête POST pour la connexion avec des informations d'identification incorrectes
 		mvc.perform(MockMvcRequestBuilders.post("/connexion")
 						.contentType(MediaType.APPLICATION_JSON)
-						.content("{\"email\": \"john@example.com\", \"motDePasse\": \"mauvaisMotDePasse\"}"))
+						.content("{\"email\": \"jacksparrow@example.com\", \"motDePasse\": \"mauvaisMotDePasse\"}"))
 				.andExpect(MockMvcResultMatchers.status().isForbidden());
 	}
 
@@ -155,22 +154,17 @@ class LocParcApplicationTests {
 	public void administrateurAppelGetUtilisateurByIdExistant_200Attendu() throws Exception {
 		// Supposons que l'ID 3 correspond à un utilisateur existant dans la base de données
 		int userId = 3;
-
 		// Créer un utilisateur factice pour simuler la réponse du mock utilisateurDao
 		Utilisateur utilisateurExistant = new Utilisateur();
 		utilisateurExistant.setId(userId);
 		utilisateurExistant.setNom("ADAM");
 		utilisateurExistant.setPrenom("Damien");
-
-
-		// Définir le comportement attendu du mock utilisateurDao
 		when(utilisateurDao.findById(userId)).thenReturn(Optional.of(utilisateurExistant));
-
 		// Effectuer la requête GET pour récupérer l'utilisateur par son ID et comparer les information obtenues
 		mvc.perform(MockMvcRequestBuilders.get("/utilisateur/{id}", userId))
 				.andExpect(MockMvcResultMatchers.status().isOk())
 				.andExpect(MockMvcResultMatchers.jsonPath("$.id").value(userId))
-				.andExpect(MockMvcResultMatchers.jsonPath("$.nom").value("SPARROW"))
+				.andExpect(MockMvcResultMatchers.jsonPath("$.nom").value("ADAM"))
 				.andExpect(MockMvcResultMatchers.jsonPath("$.prenom").value("Damien"));
 	}
 

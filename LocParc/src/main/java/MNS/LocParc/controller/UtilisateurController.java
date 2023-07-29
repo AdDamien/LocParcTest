@@ -222,22 +222,6 @@ public class UtilisateurController {
             int compteurExistant = 0;
             List<Utilisateur> listeUtilisateurPresent = new ArrayList<>();
 
-            // Vérifier si la première ligne contient les en-têtes des colonnes
-            Row premiereLigne = iterator.next();
-            boolean premiereLigneEnTetes = false;
-
-            Cell cellulePrenomEnTete = premiereLigne.getCell(0);
-            Cell celluleNomEnTete = premiereLigne.getCell(1);
-            Cell celluleEmailEnTete = premiereLigne.getCell(2);
-            Cell celluleTelephoneEnTete = premiereLigne.getCell(3);
-
-            if (cellulePrenomEnTete != null && celluleNomEnTete != null && celluleEmailEnTete != null && celluleTelephoneEnTete != null &&
-                    cellulePrenomEnTete.getStringCellValue().equalsIgnoreCase("Prenom") &&
-                    celluleNomEnTete.getStringCellValue().equalsIgnoreCase("Nom") &&
-                    celluleEmailEnTete.getStringCellValue().equalsIgnoreCase("Email") &&
-                    celluleTelephoneEnTete.getStringCellValue().equalsIgnoreCase("Telephone")) {
-                premiereLigneEnTetes = true;
-            }
 
             while (iterator.hasNext()) {
                 Row ligne = iterator.next();
